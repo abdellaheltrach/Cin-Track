@@ -1,6 +1,26 @@
-export function renderCards(data) {
+import { loadData } from "./data.js";
+
+export function renderCards(filtredData, page, totalElement) {
+    if (!filtredData) {
+        filtredData = loadData();
+    }
+    if (!page) {
+        page = 1;
+        
+    }
+
+    if (!totalElement) {
+        totalElement=6;
+    }
+
+    let skipElements = (page-1) * totalElement;
+    let takeElements = skipElements + totalElement;
+
+
+    let printSlice = filtredData.slice(skipElements,takeElements);
+
   const cardsContainer = document.getElementById("cardsContainer");
-  cardsContainer.innerHTML = data
+  cardsContainer.innerHTML = printSlice
     .map((elm) => {
       return `
             <div class="bg-[#1e1e24] rounded-xl overflow-hidden shadow-lg flex flex-col">
