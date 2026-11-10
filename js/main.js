@@ -1,6 +1,7 @@
 import { loadData } from "./data.js";
+import { renderCards } from "./ui.js";
 
 let data = await loadData();
-console.log(data)
+// console.log(data)
 
-console.log(document.getElementById("search"));
+renderCards(data);
