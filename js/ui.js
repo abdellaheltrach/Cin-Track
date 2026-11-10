@@ -64,7 +64,7 @@ export function rederPagination(
     prevBtn.className =
       "hover:cursor-pointer rounded-[12px] px-4 py-2 bg-[#E7E5E4] text-black font-semibold";
     prevBtn.addEventListener("click", () => {
-      renderTrips(modifiedTrips, courantPage - 1, pageSize);
+      renderCards(modifiedTrips, courantPage - 1, pageSize);
     });
     paginationHTML.appendChild(prevBtn);
   }
@@ -98,8 +98,40 @@ export function rederPagination(
     nextBtn.className =
       "hover:cursor-pointer rounded-[12px] px-4 py-2 bg-[#E7E5E4] text-black font-semibold";
     nextBtn.addEventListener("click", () => {
-      renderTrips(modifiedTrips, courantPage + 1, pageSize);
+      renderCards(modifiedTrips, courantPage + 1, pageSize);
     });
     paginationHTML.appendChild(nextBtn);
   }
+}
+
+
+
+export async function handleFilter() {
+    let shows = await loadData();
+
+
+  const serchInput = document.getElementById("search");
+  const statusSelector = document.getElementById("filter");
+
+  const searchString = serchInput.value.toLocaleLowerCase().trim();
+  const status = statusSelector.value;
+
+
+  const filtredShows = shows.filter((show) => {
+    const matchInput = show.title.toLocaleLowerCase().includes(searchString);
+
+    let matchFilter = false;
+
+    if (status === "Tout") {
+      matchFilter = true;
+    } else if (status === "Films") {
+      matchFilter = show.type === "movie";
+    } else if (status === "Series") {
+      matchFilter = show.type === 'series';
+    }
+
+    return matchInput && matchFilter;
+  });
+
+  renderCards(filtredShows, 1, 6);
 }
