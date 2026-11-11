@@ -59,11 +59,9 @@
       </button>
     </header>
     <div
-      class="max-w-7xl mx-auto px-2 grid grid-cols-1 md:grid-cols-5 lg:grid-cols-8 gap-4 min-h-[calc(100vh-88px)]"
+      class="max-w-7xl mx-auto px-2 grid grid-cols-1 lg:grid-cols-12 gap-4 min-h-[calc(100vh-88px)]"
     >
-      <main
-        class="md:col-span-4 lg:col-span-6 grid grid-cols-8 gap-4 content-start py-4"
-      >
+      <main class="lg:col-span-9 grid grid-cols-8 gap-4 content-start py-4">
         <div class="col-span-full">
           <div class="flex items-center">
             <button class="relative flex items-center hover:cursor-pointer">
@@ -103,7 +101,7 @@
         </div>
         <div
           id="cardsContainer"
-          class="col-span-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
+          class="col-span-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
         ></div>
         <div
           id="pagination"
@@ -134,7 +132,45 @@
           </div>
         </div>
       </main>
-      <aside class="w-[200px] border-l-2 border-[#35353d] h-full"></aside>
+      <aside class="lg:col-span-3 border-l-2 border-[#35353d] h-full">
+        <h2 class="text-xl px-4">Favorites:</h2>
+      </aside>
+    </div>
+    <!-- model -->
+    <div
+      id="modal"
+      class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#121214]/70 backdrop-blur"
+      onclick="closeModel()"
+    >
+      <div
+        class="relative bg-[#27272c] border border-[#35353d] rounded-2xl w-full max-w-md p-6 mx-4"
+        onclick="event.stopPropagation()"
+      >
+        <!-- 'X' Close Button -->
+        <button
+          id="closeModalBtn"
+          class="absolute top-4 right-4 text-gray-400 hover:text-white hover:bg-[#35353d] p-1.5 rounded-full transition-colors cursor-pointer"
+          onclick="closeModel()"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20absolute"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M18 6 6 18" />
+            <path d="m6 6 12 12" />
+          </svg>
+        </button>
+
+        <h3 class="text-xl font-bold mb-3">Détails</h3>
+        <p class="text-gray-300 text-sm mb-6">hello</p>
+      </div>
     </div>
 
     <footer class="max-w-7xl mx-auto px-2"></footer>

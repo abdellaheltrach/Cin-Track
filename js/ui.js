@@ -1,6 +1,22 @@
 import { loadData } from "./data.js";
 
-export function renderCards(filtredData, page, totalElement) {
+//action
+let showsData = await loadData();
+
+window.closeModel = function(){
+    const model = document.getElementById("modal");
+    model.classList.add('hidden')
+}
+
+window.openModel = function (elm) {
+
+    console.log(elm.dataset.id);
+  const model = document.getElementById("modal");
+  model.classList.remove("hidden");
+};
+
+
+export function renderCards(filtredData, page, size) {
   if (!filtredData) {
     filtredData = loadData();
   }
@@ -8,12 +24,12 @@ export function renderCards(filtredData, page, totalElement) {
     page = 1;
   }
 
-  if (!totalElement) {
-    totalElement = 6;
+  if (!size) {
+    size = 6;
   }
 
-  let skipElements = (page - 1) * totalElement;
-  let takeElements = skipElements + totalElement;
+  let skipElements = (page - 1) * size;
+  let takeElements = skipElements + size;
 
   let printSlice = filtredData.slice(skipElements, takeElements);
 
@@ -21,7 +37,8 @@ export function renderCards(filtredData, page, totalElement) {
   cardsContainer.innerHTML = printSlice
     .map((elm) => {
       return `
-            <div class="bg-[#1e1e24] rounded-xl overflow-hidden shadow-lg flex flex-col">
+            <div data-id='${elm.id}' class="bg-[#1e1e24] rounded overflow-hidden shadow-lg flex flex-col hover:cursor-pointer transition-all duration-300 hover:-translate-y-2"
+            onclick='openModel(this)'>
                 <img src="${elm.image}" alt="${elm.title}" class="w-full h-64 object-cover">
                 <div class="p-4 flex flex-col flex-grow">
                     <div class="flex justify-between items-center mb-2">
@@ -38,7 +55,8 @@ export function renderCards(filtredData, page, totalElement) {
     })
     .join("");
 
-    rederPagination(filtredData, page, totalElement);
+
+    rederPagination(filtredData, page, size);
 }
 
 export function rederPagination(
@@ -119,6 +137,7 @@ export async function handleFilter() {
 
   const filtredShows = shows.filter((show) => {
     const matchInput = show.title.toLocaleLowerCase().includes(searchString);
+  
 
     let matchFilter = false;
 
