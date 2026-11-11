@@ -59,12 +59,12 @@
       </button>
     </header>
     <div
-      class="max-w-7xl mx-auto px-2 grid grid-cols-1 md:grid-cols-5 lg:grid-cols-8 gap-4 min-h-[calc(100vh-88px)]"
+      class="max-w-7xl mx-auto px-2 grid grid-cols-1 lg:grid-cols-12 gap-4 min-h-[calc(100vh-88px)]"
     >
-      <main class="md:col-span-3 lg:col-span-5 grid grid-cols-8 gap-4 content-start py-4">
-        <div class="col-span-full ">
-          <div class="relative flex items-center">
-            <button id="search" class="flex items-center hover:cursor-pointer">
+      <main class="lg:col-span-9 grid grid-cols-8 gap-4 content-start py-4">
+        <div class="col-span-full">
+          <div class="flex items-center">
+            <button class="relative flex items-center hover:cursor-pointer">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -83,23 +83,97 @@
             </button>
 
             <input
-              class=" bg-[#27272c] px-10 h-12 w-full rounded-full mr-2"
+              id="search"
+              class="bg-[#27272c] px-10 h-12 w-full rounded-full mr-2"
               type="search"
-              name=""
+              name="search"
             />
-            <select class="bg-[#27272c] w-28 px-6 h-12 rounded-full cursor-pointer" name="filter" id="">
-                <option value="Tout">Tout</option>
-                <option value="Films">Films</option>
-                <option value="Series">Series</option>
+            <select
+              class="bg-[#27272c] w-28 px-6 h-12 rounded-full cursor-pointer"
+              name="filter"
+              id="filter"
+            >
+              <option value="Tout">Tout</option>
+              <option value="Films">Films</option>
+              <option value="Series">Series</option>
             </select>
           </div>
         </div>
-        <div id="cardsContainer" class="col-span-full">
-            hello
+        <div
+          id="cardsContainer"
+          class="col-span-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+        ></div>
+        <div
+          id="pagination"
+          ;
+          class="rounded-xl col-span-full flex flex-wrap justify-center items-center gap-4"
+        >
+          <div class="flex flex-row justify-center items-center gap-3 w-full">
+            <button class="rounded-[12px] px-4 py-2 bg-[#0C1E4A]/40 text-white">
+              1
+            </button>
+
+            <button
+              class="hover:cursor-pointer rounded-[12px] px-4 py-2 bg-[#E7E5E4] text-black"
+            >
+              2
+            </button>
+
+            <button
+              class="hover:cursor-pointer rounded-[12px] px-4 py-2 bg-[#E7E5E4] text-black"
+            >
+              3
+            </button>
+            <button
+              class="hover:cursor-pointer rounded-[12px] px-4 py-2 bg-[#E7E5E4] text-black"
+            >
+              &gt;
+            </button>
+          </div>
         </div>
       </main>
-      <aside class="md:col-span-2 lg:col-span-3 border-l-2 border-[#35353d] h-full"></aside>
+      <aside class="lg:col-span-3 border-l-2 border-[#35353d] h-full">
+        <h2 class="text-xl px-4">Favorites:</h2>
+      </aside>
     </div>
+    <!-- model -->
+    <div
+      id="modal"
+      class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#121214]/70 backdrop-blur"
+      onclick="closeModel()"
+    >
+      <div
+        class="relative bg-[#27272c] border border-[#35353d] rounded-2xl w-full max-w-[800px] p-6 mx-4"
+        id="modal-content"
+        onclick="event.stopPropagation()"
+      >
+        <!-- 'X' Close Button -->
+        <button
+          id="closeModalBtn"
+          class="absolute top-4 right-4 text-gray-400 hover:text-white hover:bg-[#35353d] p-1.5 rounded-full transition-colors cursor-pointer"
+          onclick="closeModel()"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M18 6 6 18" />
+            <path d="m6 6 12 12" />
+          </svg>
+        </button>
+
+        <h3 class="text-xl font-bold mb-3">Détails</h3>
+        <p class="text-gray-300 text-sm mb-6">hello</p>
+      </div>
+    </div>
+
     <footer class="max-w-7xl mx-auto px-2"></footer>
     <script type="module" src="/js/main.js"></script>
   </body>
