@@ -9,8 +9,59 @@ window.closeModel = function(){
 }
 
 window.openModel = function (elm) {
+  const id = elm.dataset.id;
 
-    console.log(elm.dataset.id);
+  const item = showsData.find((d) => d.id === id);
+  if (!item) return;
+
+  // Populate the modal with the image on the left and full info on the right
+  const modalContent = document.getElementById("modal-content");
+  modalContent.innerHTML = `
+          <button
+          id="closeModalBtn"
+          class="absolute top-4 right-4 text-gray-400 hover:text-white hover:bg-[#35353d] p-1.5 rounded-full transition-colors cursor-pointer"
+          onclick="closeModel()"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M18 6 6 18" />
+            <path d="m6 6 12 12" />
+          </svg>
+        </button>
+    <div class="flex flex-col md:flex-row gap-6 items-start">
+      <!-- Left: Image -->
+      <img src="${item.image}" alt="${item.title}" class="w-48 h-auto rounded-lg shadow-md object-cover flex-shrink-0">
+      
+      <!-- Right: All Info -->
+      <div class="flex-1 text-white">
+        <div class="flex items-center gap-3">
+          <h2 class="text-2xl font-bold">${item.title} (${item.releaseYear})</h2>
+          <span class="bg-gray-700 text-xs px-2 py-1 rounded uppercase tracking-wider text-gray-300">${item.type}</span>
+        </div>
+        
+        <p class="text-gray-300 mt-2 mb-4">${item.description}</p>
+        
+        <div class="space-y-1 text-sm text-gray-400">
+          <p><strong class="text-gray-200">Genres:</strong> ${item.genres.join(", ")}</p>
+          <p><strong class="text-gray-200">Directors:</strong> ${item.directors.join(", ")}</p>
+          ${item.duration ? `<p><strong class="text-gray-200">Duration:</strong> ${item.duration} mins</p>` : ""}
+          ${item.seasons ? `<p><strong class="text-gray-200">Seasons:</strong> ${item.seasons.length}</p>` : ""}
+          <p><strong class="text-gray-200">Countries:</strong> ${item.productionCountries.join(", ")}</p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Show the modal
   const model = document.getElementById("modal");
   model.classList.remove("hidden");
 };
