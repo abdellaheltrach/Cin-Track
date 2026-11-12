@@ -1,15 +1,15 @@
-import { loadData } from "./data.js";
+import { loadData, loadFavorites, saveFavorites } from "./data.js";
 
 //action
 let showsData = await loadData();
 
-window.closeModel = function(){
-    const model = document.getElementById("modal");
-    model.classList.add('hidden')
-}
+window.closeModel = function () {
+  const model = document.getElementById("modal");
+  model.classList.add("hidden");
+};
 
-window.openModel = function (elm) {
-  const id = elm.dataset.id;
+window.openModel = function (card) {
+  const id = card.dataset.id;
 
   const item = showsData.find((d) => d.id === id);
   if (!item) return;
@@ -66,7 +66,6 @@ window.openModel = function (elm) {
   model.classList.remove("hidden");
 };
 
-
 export function renderCards(filtredData, page, size) {
   if (!filtredData) {
     filtredData = loadData();
@@ -88,8 +87,14 @@ export function renderCards(filtredData, page, size) {
   cardsContainer.innerHTML = printSlice
     .map((elm) => {
       return `
-            <div data-id='${elm.id}' class="bg-[#1e1e24] rounded overflow-hidden shadow-lg flex flex-col hover:cursor-pointer transition-all duration-300 hover:-translate-y-2"
+          <div>
+            <div data-id='${elm.id}' class="relative bg-[#1e1e24] rounded overflow-hidden shadow-lg flex flex-col hover:cursor-pointer transition-all duration-300 hover:-translate-y-2"
             onclick='openModel(this)'>
+             <div onclick="event.stopPropagation()">
+            <button data-id='${elm.id}' class="hover:cursor-pointer hover:bg-red" onclick="handleFavs(this)">
+              <svg class="absolute top-3 right-3 transition-transform duration-200 hover:scale-130 " xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart preview-icon"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"/></svg>
+            </button>
+             </div>
                 <img src="${elm.image}" alt="${elm.title}" class="w-full h-64 object-cover">
                 <div class="p-4 flex flex-col flex-grow">
                     <div class="flex justify-between items-center mb-2">
@@ -102,22 +107,18 @@ export function renderCards(filtredData, page, size) {
                     </div>
                 </div>
             </div>
+            </div>
         `;
     })
     .join("");
 
-
-    rederPagination(filtredData, page, size);
+  rederPagination(filtredData, page, size);
 }
 
-export function rederPagination(
-  modifiedTrips,
-  courantPage,
-  pageSize,
-) {
+export function rederPagination(showsTable, courantPage, pageSize) {
   const paginationHTML = document.getElementById("pagination");
 
-  let totalElement = modifiedTrips.length;
+  let totalElement = showsTable.length;
   paginationHTML.innerHTML = "";
 
   let totalPages = Math.ceil(totalElement / pageSize);
@@ -133,7 +134,7 @@ export function rederPagination(
     prevBtn.className =
       "hover:cursor-pointer rounded-[12px] px-4 py-2 bg-[#E7E5E4] text-black font-semibold";
     prevBtn.addEventListener("click", () => {
-      renderCards(modifiedTrips, courantPage - 1, pageSize);
+      renderCards(showsTable, courantPage - 1, pageSize);
     });
     paginationHTML.appendChild(prevBtn);
   }
@@ -154,7 +155,7 @@ export function rederPagination(
     }
 
     btn.addEventListener("click", () => {
-      renderCards(modifiedTrips, i, pageSize);
+      renderCards(showsTable, i, pageSize);
     });
 
     paginationHTML.appendChild(btn);
@@ -167,17 +168,14 @@ export function rederPagination(
     nextBtn.className =
       "hover:cursor-pointer rounded-[12px] px-4 py-2 bg-[#E7E5E4] text-black font-semibold";
     nextBtn.addEventListener("click", () => {
-      renderCards(modifiedTrips, courantPage + 1, pageSize);
+      renderCards(showsTable, courantPage + 1, pageSize);
     });
     paginationHTML.appendChild(nextBtn);
   }
 }
 
-
-
 export async function handleFilter() {
-    let shows = await loadData();
-
+  let shows = await loadData();
 
   const serchInput = document.getElementById("search");
   const statusSelector = document.getElementById("filter");
@@ -185,10 +183,8 @@ export async function handleFilter() {
   const searchString = serchInput.value.toLocaleLowerCase().trim();
   const status = statusSelector.value;
 
-
   const filtredShows = shows.filter((show) => {
     const matchInput = show.title.toLocaleLowerCase().includes(searchString);
-  
 
     let matchFilter = false;
 
@@ -197,7 +193,7 @@ export async function handleFilter() {
     } else if (status === "Films") {
       matchFilter = show.type === "movie";
     } else if (status === "Series") {
-      matchFilter = show.type === 'series';
+      matchFilter = show.type === "series";
     }
 
     return matchInput && matchFilter;
@@ -205,3 +201,28 @@ export async function handleFilter() {
 
   renderCards(filtredShows, 1, 6);
 }
+
+document.handleFavs = function (element) {
+  //load faves
+  let favorites = loadFavorites();
+  console.log(favorites
+  )
+
+  const showId = Number(element.dataset.id);
+  const selectedShow = showsData.find((s) => Number(s.id) === showId);
+
+  //check if the id is in faves or not if in we romve it if not then add it
+  let foundIndex = favorites.findIndex((f) => Number(f.id) === showId);
+  if (foundIndex !== -1) {
+    favorites.splice(foundIndex,1);
+  } else {
+
+    if (selectedShow) {
+      favorites.push(selectedShow);
+    }
+  }
+  saveFavorites(favorites);
+};
+
+
+// [].findIndex
