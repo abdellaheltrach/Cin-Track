@@ -3,12 +3,15 @@ import { loadData, loadFavorites, saveFavorites } from "./data.js";
 //action
 let showsData = await loadData();
 
+let currentPage = 1;
+let currentSize = 6;
+
 window.closeModel = function () {
   const model = document.getElementById("modal");
   model.classList.add("hidden");
 };
 
-window.openModel = function (card) {
+export function openModel(card) {
   const id = card.dataset.id;
 
   const item = showsData.find((d) => d.id === id);
@@ -64,11 +67,11 @@ window.openModel = function (card) {
   // Show the modal
   const model = document.getElementById("modal");
   model.classList.remove("hidden");
-};
+}
 
 export function renderCards(filtredData, page, size) {
   if (!filtredData) {
-    filtredData = loadData();
+    filtredData = showsData;
   }
   if (!page) {
     page = 1;
@@ -78,23 +81,30 @@ export function renderCards(filtredData, page, size) {
     size = 6;
   }
 
+  currentPage = page;
+  currentSize = size;
+
   let skipElements = (page - 1) * size;
   let takeElements = skipElements + size;
 
   let printSlice = filtredData.slice(skipElements, takeElements);
 
   const cardsContainer = document.getElementById("cardsContainer");
+
+  //faves handles
+
+  let favorites = loadFavorites();
+
   cardsContainer.innerHTML = printSlice
     .map((elm) => {
       return `
-          <div>
-            <div data-id='${elm.id}' class="relative bg-[#1e1e24] rounded overflow-hidden shadow-lg flex flex-col hover:cursor-pointer transition-all duration-300 hover:-translate-y-2"
-            onclick='openModel(this)'>
-             <div onclick="event.stopPropagation()">
-            <button data-id='${elm.id}' class="hover:cursor-pointer hover:bg-red" onclick="handleFavs(this)">
-              <svg class="absolute top-3 right-3 transition-transform duration-200 hover:scale-130 " xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart preview-icon"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"/></svg>
+            <div data-id='${elm.id}' class="card relative bg-[#1e1e24] rounded overflow-hidden shadow-lg flex flex-col hover:cursor-pointer transition-all duration-300 hover:-translate-y-2">
+            <button data-id='${elm.id}' class="hover:cursor-pointer hover:bg-red" onclick="handleFavs(this); event.stopPropagation()">
+              <svg class="absolute top-3 right-3 transition-transform duration-200 hover:scale-125 lucide lucide-heart preview-icon ${favorites.some((f) => Number(f.id) === Number(elm.id)) ? "text-red-500 fill-red-500" : ""}" xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" >
+              <path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"/>
+              </svg>            
             </button>
-             </div>
+
                 <img src="${elm.image}" alt="${elm.title}" class="w-full h-64 object-cover">
                 <div class="p-4 flex flex-col flex-grow">
                     <div class="flex justify-between items-center mb-2">
@@ -107,10 +117,16 @@ export function renderCards(filtredData, page, size) {
                     </div>
                 </div>
             </div>
-            </div>
         `;
     })
     .join("");
+
+  // This will now correctly attach the click listener and read the dataset id
+  cardsContainer.querySelectorAll(".card").forEach((card) => {
+    card.addEventListener("click", () => {
+      openModel(card);
+    });
+  });
 
   rederPagination(filtredData, page, size);
 }
@@ -205,8 +221,6 @@ export async function handleFilter() {
 document.handleFavs = function (element) {
   //load faves
   let favorites = loadFavorites();
-  console.log(favorites
-  )
 
   const showId = Number(element.dataset.id);
   const selectedShow = showsData.find((s) => Number(s.id) === showId);
@@ -214,15 +228,12 @@ document.handleFavs = function (element) {
   //check if the id is in faves or not if in we romve it if not then add it
   let foundIndex = favorites.findIndex((f) => Number(f.id) === showId);
   if (foundIndex !== -1) {
-    favorites.splice(foundIndex,1);
+    favorites.splice(foundIndex, 1);
   } else {
-
     if (selectedShow) {
       favorites.push(selectedShow);
     }
   }
   saveFavorites(favorites);
+  renderCards(showsData, currentPage, currentSize);
 };
-
-
-// [].findIndex
