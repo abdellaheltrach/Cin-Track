@@ -129,6 +129,7 @@ export function renderCards(filtredData, page, size) {
   });
 
   rederPagination(filtredData, page, size);
+  renderFavorites();
 }
 
 export function rederPagination(showsTable, courantPage, pageSize) {
@@ -236,4 +237,63 @@ document.handleFavs = function (element) {
   }
   saveFavorites(favorites);
   renderCards(showsData, currentPage, currentSize);
+  renderFavorites();
 };
+export function renderFavorites() {
+  const container = document.getElementById("favorite-container");
+  if (!container) return;
+
+  const favorites = loadFavorites();
+
+  // If empty show friendly message
+  if (favorites.length === 0) {
+    container.className = "flex flex-col h-[100vh] items-center justify-center";
+    container.innerHTML = `<p class="text-gray-400 text-sm">No favorite shows added yet.</p>`;
+    return;
+  } else {
+    // Reset container classes for a clean vertical stacked list with gaps
+    container.className = "flex flex-col gap-3 p-3";
+  }
+
+  container.innerHTML = favorites
+    .map(
+      (elm) => `
+    <div class="relative bg-[#1e1e24] rounded-xl overflow-hidden shadow-md flex items-center gap-3 p-2.5 transition-all hover:bg-[#27272c]">
+      <img src="${elm.image}" alt="${elm.title}" class="w-16 h-16 rounded-lg object-cover flex-shrink-0">
+
+      <div class="flex flex-col flex-grow min-w-0">
+          <div class="flex items-center justify-between gap-2 mb-1">
+              <h3 class="text-sm font-bold text-white truncate">${elm.title}</h3>
+              <span class="text-[10px] bg-[#35353d] px-1.5 py-0.5 rounded text-gray-300 flex-shrink-0">${elm.releaseYear}</span>
+          </div>
+          <p class="text-xs text-gray-400 line-clamp-1">${elm.description}</p>
+      </div>
+
+      <button data-id="${elm.id}" class="remove-fav-btn text-gray-400 hover:text-white hover:bg-red-600/80 p-1.5 rounded-full transition-colors cursor-pointer flex-shrink-0" title="Remove">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 6 6 18"/>
+          <path d="m6 6 12 12"/>
+        </svg>
+      </button>
+    </div>
+  `,
+    )
+    .join("");
+
+  container.querySelectorAll(".remove-fav-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const showId = Number(btn.dataset.id);
+
+      let updatedFavorites = loadFavorites().filter(
+        (f) => Number(f.id) !== showId,
+      );
+      saveFavorites(updatedFavorites);
+
+      renderFavorites();
+      if (typeof renderCards === "function") {
+        renderCards();
+      }
+    });
+  });
+}
