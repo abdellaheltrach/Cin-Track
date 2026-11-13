@@ -11,6 +11,11 @@ window.closeModel = function () {
   model.classList.add("hidden");
 };
 
+//calback function
+ function renderList(items, cardTemplateCallback) {
+  return items.map(cardTemplateCallback).join("");
+}
+
 export function openModel(card) {
   const id = card.dataset.id;
 
@@ -75,7 +80,6 @@ export function renderCards(filtredData, page, size) {
       return;
     }
     filtredData = showsData;
-
   }
   if (!page) {
     page = 1;
@@ -99,31 +103,29 @@ export function renderCards(filtredData, page, size) {
 
   let favorites = loadFavorites();
 
-  cardsContainer.innerHTML = printSlice
-    .map((elm) => {
-      return `
-            <div data-id='${elm.id}' class="card relative bg-[#1e1e24] rounded overflow-hidden shadow-lg flex flex-col hover:cursor-pointer transition-all duration-300 hover:-translate-y-2">
-            <button data-id='${elm.id}' class="hover:cursor-pointer hover:bg-red" onclick="handleFavs(this); event.stopPropagation()">
-              <svg class="absolute top-3 right-3 transition-transform duration-200 hover:scale-125 lucide lucide-heart preview-icon ${favorites.some((f) => Number(f.id) === Number(elm.id)) ? "text-red-500 fill-red-500" : ""}" xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" >
-              <path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"/>
-              </svg>            
-            </button>
+  cardsContainer.innerHTML = renderList(printSlice, (elm) => {
+    return `
+      <div data-id='${elm.id}' class="card relative bg-[#1e1e24] rounded overflow-hidden shadow-lg flex flex-col hover:cursor-pointer transition-all duration-300 hover:-translate-y-2">
+        <button data-id='${elm.id}' class="hover:cursor-pointer" onclick="handleFavs(this); event.stopPropagation()">
+          <svg class="absolute top-3 right-3 transition-transform duration-200 hover:scale-125 lucide lucide-heart preview-icon ${favorites.some((f) => Number(f.id) === Number(elm.id)) ? "text-red-500 fill-red-500" : ""}" xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" >
+          <path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"/>
+          </svg>            
+        </button>
 
-                <img src="${elm.image}" alt="${elm.title}" class="w-full h-64 object-cover">
-                <div class="p-4 flex flex-col flex-grow">
-                    <div class="flex justify-between items-center mb-2">
-                        <h3 class="text-lg font-bold text-white truncate">${elm.title}</h3>
-                        <span class="text-xs bg-[#27272c] px-2 py-1 rounded text-gray-300">${elm.releaseYear}</span>
-                    </div>
-                    <p class="text-sm text-gray-400 mb-4 line-clamp-2">${elm.description}</p>
-                    <div class="mt-auto flex flex-wrap gap-1">
-                        ${elm.genres.map((genre) => `<span class="text-xs bg-red-600/20 text-red-400 px-2 py-0.5 rounded">${genre}</span>`).join("")}
-                    </div>
-                </div>
+        <img src="${elm.image}" alt="${elm.title}" class="w-full h-64 object-cover">
+        <div class="p-4 flex flex-col flex-grow">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="text-lg font-bold text-white truncate">${elm.title}</h3>
+                <span class="text-xs bg-[#27272c] px-2 py-1 rounded text-gray-300">${elm.releaseYear}</span>
             </div>
-        `;
-    })
-    .join("");
+            <p class="text-sm text-gray-400 mb-4 line-clamp-2">${elm.description}</p>
+            <div class="mt-auto flex flex-wrap gap-1">
+                ${elm.genres.map((genre) => `<span class="text-xs bg-red-600/20 text-red-400 px-2 py-0.5 rounded">${genre}</span>`).join("")}
+            </div>
+        </div>
+      </div>
+    `;
+  });
 
   // This will now correctly attach the click listener and read the dataset id
   cardsContainer.querySelectorAll(".card").forEach((card) => {
@@ -220,7 +222,7 @@ export async function handleFilter() {
     return matchInput && matchFilter;
   });
 
-  renderCards(filtredShows, 1, 6);
+  renderCards(filtredShows, 1, currentSize);
 }
 
 document.handleFavs = function (element) {
@@ -249,17 +251,38 @@ export function renderFavorites() {
 
   const favorites = loadFavorites();
 
-  // If empty show friendly message
+  const stats = favorites.reduce(
+    (obj, fav) => {
+      if (fav.type === "movie") {
+        obj.movies++;
+      } else if (fav.type === "series") {
+        obj.series++;
+      }
+      return obj;
+    },
+    { movies: 0, series: 0 },
+  );
+
+  // Si aucun favori, afficher un message vide
   if (favorites.length === 0) {
     container.className = "flex flex-col h-[100vh] items-center justify-center";
     container.innerHTML = `<p class="text-gray-400 text-sm">No favorite shows added yet.</p>`;
     return;
   } else {
-    // Reset container classes for a clean vertical stacked list with gaps
     container.className = "flex flex-col gap-3 p-3";
   }
 
-  container.innerHTML = favorites
+  // Création du petit compteur statistique (généré grâce à reduce)
+  let headerStatsHTML = `
+    <div class="bg-[#1e1e24] rounded-xl overflow-hidden shadow-md flex items-center gap-3 p-2.5 transition-all hover:bg-[#27272c]">
+    <span>Total: <strong class="text-white">${favorites.length}</strong></span>
+      <span>Films: <strong class="text-white">${stats.movies}</strong></span>
+      <span>Séries: <strong class="text-white">${stats.series}</strong></span>
+    </div>
+  `;
+
+  // Génération de la liste des favoris avec map
+  const listHTML = favorites
     .map(
       (elm) => `
     <div class="relative bg-[#1e1e24] rounded-xl overflow-hidden shadow-md flex items-center gap-3 p-2.5 transition-all hover:bg-[#27272c]">
@@ -284,6 +307,10 @@ export function renderFavorites() {
     )
     .join("");
 
+  // Injection du compteur + de la liste
+  container.innerHTML = headerStatsHTML + listHTML;
+
+  // Gestion des clics pour supprimer un favori
   container.querySelectorAll(".remove-fav-btn").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -301,7 +328,6 @@ export function renderFavorites() {
     });
   });
 }
-
 export function handleFetchError() {
   const cardsContainer = document.getElementById("cardsContainer");
   cardsContainer.innerHTML = `
@@ -317,5 +343,5 @@ export function handleFetchError() {
       </div>
     `;
   const paginationHTML = document.getElementById("pagination");
-  paginationHTML.innerHTML="";
+  paginationHTML.innerHTML = "";
 }

@@ -6,7 +6,7 @@ let data = await loadData();
 
 // console.log(data);
 
-renderCards(data, 1, 6);
+renderCards(data, 1, 8);
 
 const serchInput = document.getElementById("search");
 const statusSelector = document.getElementById("filter");
