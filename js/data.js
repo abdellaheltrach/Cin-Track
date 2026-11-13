@@ -1,3 +1,6 @@
+import { handleFetchError } from "./ui.js";
+
+handleFetchError
 const key = "favos";
 
 export async function loadData() {
@@ -12,7 +15,7 @@ export async function loadData() {
     let data = await response.json();
     return data;
   } catch (error) {
-    console.error("Failed to fetch cinetrack data:", error);
+    handleFetchError();
   }
 }
 

@@ -71,7 +71,11 @@ export function openModel(card) {
 
 export function renderCards(filtredData, page, size) {
   if (!filtredData) {
+    if (!showsData) {
+      return;
+    }
     filtredData = showsData;
+
   }
   if (!page) {
     page = 1;
@@ -296,4 +300,22 @@ export function renderFavorites() {
       }
     });
   });
+}
+
+export function handleFetchError() {
+  const cardsContainer = document.getElementById("cardsContainer");
+  cardsContainer.innerHTML = `
+      <div class="col-span-full flex flex-col items-center justify-center py-16 px-4 text-center">
+        <svg class="w-16 h-16 text-red-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+        </svg>
+        <h3 class="text-xl font-semibold text-white mb-2">Impossible de charger les données</h3>
+        <p class="text-gray-400 max-w-md mb-6">Une erreur est survenue lors de la récupération des films. Vérifiez votre connexion Internet et réessayez.</p>
+        <button onclick="window.location.reload()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors cursor-pointer">
+          Réessayer
+        </button>
+      </div>
+    `;
+  const paginationHTML = document.getElementById("pagination");
+  paginationHTML.innerHTML="";
 }
