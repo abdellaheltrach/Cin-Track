@@ -220,7 +220,7 @@ export async function handleFilter() {
     return matchInput && matchFilter;
   });
 
-  renderCards(filtredShows, 1, 6);
+  renderCards(filtredShows, 1, currentSize);
 }
 
 document.handleFavs = function (element) {
@@ -249,17 +249,38 @@ export function renderFavorites() {
 
   const favorites = loadFavorites();
 
-  // If empty show friendly message
+  const stats = favorites.reduce(
+    (obj, fav) => {
+      if (fav.type === "movie") {
+        obj.movies++;
+      } else if (fav.type === "series") {
+        obj.series++;
+      }
+      return obj;
+    },
+    { movies: 0, series: 0 }
+  );
+
+  // Si aucun favori, afficher un message vide
   if (favorites.length === 0) {
     container.className = "flex flex-col h-[100vh] items-center justify-center";
     container.innerHTML = `<p class="text-gray-400 text-sm">No favorite shows added yet.</p>`;
     return;
   } else {
-    // Reset container classes for a clean vertical stacked list with gaps
     container.className = "flex flex-col gap-3 p-3";
   }
 
-  container.innerHTML = favorites
+  // Création du petit compteur statistique (généré grâce à reduce)
+  let headerStatsHTML = `
+    <div class="bg-[#1e1e24] rounded-xl overflow-hidden shadow-md flex items-center gap-3 p-2.5 transition-all hover:bg-[#27272c]">
+    <span>Total: <strong class="text-white">${favorites.length}</strong></span>
+      <span>Films: <strong class="text-white">${stats.movies}</strong></span>
+      <span>Séries: <strong class="text-white">${stats.series}</strong></span>
+    </div>
+  `;
+
+  // Génération de la liste des favoris avec map
+  const listHTML = favorites
     .map(
       (elm) => `
     <div class="relative bg-[#1e1e24] rounded-xl overflow-hidden shadow-md flex items-center gap-3 p-2.5 transition-all hover:bg-[#27272c]">
@@ -284,6 +305,10 @@ export function renderFavorites() {
     )
     .join("");
 
+  // Injection du compteur + de la liste
+  container.innerHTML = headerStatsHTML + listHTML;
+
+  // Gestion des clics pour supprimer un favori
   container.querySelectorAll(".remove-fav-btn").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -301,7 +326,6 @@ export function renderFavorites() {
     });
   });
 }
-
 export function handleFetchError() {
   const cardsContainer = document.getElementById("cardsContainer");
   cardsContainer.innerHTML = `
