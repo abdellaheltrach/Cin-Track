@@ -1,3 +1,8 @@
+import { handleFetchError } from "./ui.js";
+
+handleFetchError
+const key = "favos";
+
 export async function loadData() {
   try {
     let response = await fetch(
@@ -10,6 +15,30 @@ export async function loadData() {
     let data = await response.json();
     return data;
   } catch (error) {
-    console.error("Failed to fetch cinetrack data:", error);
+    handleFetchError();
   }
+}
+
+export function loadFavorites() {
+  let stringData = localStorage.getItem(key);
+
+  try{
+    if(!stringData)
+    {
+      localStorage.setItem(key, JSON.stringify([]))
+      return [];
+    }
+    else
+    {
+      return JSON.parse(stringData);
+    }
+  } catch (error) {
+      
+    return [];
+     }
+  
+  
+}
+export function saveFavorites(newFav) {
+  localStorage.setItem(key, JSON.stringify(newFav));
 }
